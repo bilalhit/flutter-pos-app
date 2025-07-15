@@ -10,6 +10,7 @@ class AddProductPage extends StatefulWidget {
 }
 
 class _AddProductPageState extends State<AddProductPage> {
+  String? selectedCategory;
   final _formKey = GlobalKey<FormState>();
   String productName = '';
   String price = '';
@@ -104,6 +105,35 @@ class _AddProductPageState extends State<AddProductPage> {
                 validator: (val) => val!.isEmpty ? 'Enter quantity' : null,
               ),
               const SizedBox(height: 16),
+
+          // Category Dropdown
+          DropdownButtonFormField<String>(
+          value: selectedCategory,
+          decoration: const InputDecoration(
+            labelText: 'Category',
+            border: OutlineInputBorder(),
+          ),
+          items: [
+              'Fruits',
+              'Bakery',
+              'Vegetables',
+              'Grocery',
+              'Electronics',
+          ].map((category) {
+            return DropdownMenuItem<String>(
+              value: category,
+              child: Text(category),
+            );
+          }).toList(),
+          onChanged: (value) {
+            setState(() {
+              selectedCategory = value!;
+            });
+          },
+          validator: (value) =>
+          value == null || value.isEmpty ? 'Please select a category' : null,
+        ),
+        const SizedBox(height: 16),
 
               // Product Code
               TextFormField(

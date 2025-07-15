@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'admin_dashboard.dart';
 
 class AdminLoginScreen extends StatefulWidget {
@@ -12,20 +13,38 @@ class _AdminLoginScreenState extends State<AdminLoginScreen> {
   final emailController = TextEditingController();
   final passwordController = TextEditingController();
 
-  final String tempAdminEmail = 'a';
-  final String tempAdminPass = '2';
+  bool isLoading = false;
 
-  void loginAdmin() {
-    if (emailController.text == tempAdminEmail &&
-        passwordController.text == tempAdminPass) {
-      Navigator.pushReplacement(
-        context,
-        MaterialPageRoute(builder: (_) => const AdminDashboard()),
+  void loginAdmin() async {
+    setState(() => isLoading = true);
+
+    try {
+      final UserCredential userCredential =
+      await FirebaseAuth.instance.signInWithEmailAndPassword(
+        email: emailController.text.trim(),
+        password: passwordController.text.trim(),
       );
-    } else {
+
+      if (userCredential.user!.email == 'admin@gmail.com') {
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(builder: (_) => const AdminDashboard()),
+        );
+      } else {
+        throw FirebaseAuthException(
+            code: 'not-an-admin',
+            message: 'This account is not authorized as admin.');
+      }
+    } on FirebaseAuthException catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text("Invalid admin credentials")),
+        SnackBar(content: Text("Login failed: ${e.message}")),
       );
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text("Something went wrong. Try again.")),
+      );
+    } finally {
+      setState(() => isLoading = false);
     }
   }
 
@@ -97,7 +116,7 @@ class _AdminLoginScreenState extends State<AdminLoginScreen> {
                     SizedBox(
                       width: double.infinity,
                       child: ElevatedButton(
-                        onPressed: loginAdmin,
+                        onPressed: isLoading ? null : loginAdmin,
                         style: ElevatedButton.styleFrom(
                           backgroundColor: Colors.green,
                           padding: const EdgeInsets.symmetric(vertical: 16),
@@ -105,7 +124,13 @@ class _AdminLoginScreenState extends State<AdminLoginScreen> {
                             borderRadius: BorderRadius.circular(12),
                           ),
                         ),
-                        child: const Text("Login as Admin", style: TextStyle(fontSize: 18)),
+                        child: isLoading
+                            ? const CircularProgressIndicator(
+                          valueColor:
+                          AlwaysStoppedAnimation<Color>(Colors.white),
+                        )
+                            : const Text("Login as Admin",
+                            style: TextStyle(fontSize: 18)),
                       ),
                     ),
                   ],
