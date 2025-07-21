@@ -10,6 +10,7 @@ android {
     namespace = "com.example.nextgen"
     compileSdk = flutter.compileSdkVersion
 
+
     defaultConfig {
         applicationId = "com.example.nextgen"
         minSdkVersion 23                   // ← bump this to 23

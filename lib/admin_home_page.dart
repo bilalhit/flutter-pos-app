@@ -3,6 +3,9 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'admin_login_screen.dart';
 import 'add_product_page.dart';
 import 'customers_page.dart';
+import 'add_promotion_page.dart';
+import 'promotions_page.dart';
+import 'ProductListPage.dart';
 
 class AdminHomePage extends StatefulWidget {
   const AdminHomePage({super.key});
@@ -13,17 +16,33 @@ class AdminHomePage extends StatefulWidget {
 
 class _AdminHomePageState extends State<AdminHomePage> {
   int _userCount = 0;
+  int _promotionCount = 0;
+  int _productCount=0;
 
   @override
   void initState() {
     super.initState();
+    fetchProductCount();
     fetchUserCount();
+    fetchPromotionCount();
   }
 
   Future<void> fetchUserCount() async {
     final snapshot = await FirebaseFirestore.instance.collection('users').get();
     setState(() {
       _userCount = snapshot.docs.length;
+    });
+  }
+  Future<void> fetchProductCount() async {
+    final snapshot = await FirebaseFirestore.instance.collection('products').get();
+    setState(() {
+      _productCount = snapshot.docs.length;
+    });
+  }
+  Future<void> fetchPromotionCount() async {
+    final snapshot = await FirebaseFirestore.instance.collection('promotions').get();
+    setState(() {
+      _promotionCount = snapshot.docs.length;
     });
   }
 
@@ -52,14 +71,25 @@ class _AdminHomePageState extends State<AdminHomePage> {
               leading: const Icon(Icons.inventory),
               title: const Text('Products'),
               onTap: () {
-                // Optional: Add products page navigation
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => const ProductListPage()),
+                );
               },
             ),
             ListTile(
               leading: const Icon(Icons.shopping_bag),
               title: const Text('Orders'),
+              onTap: () {},
+            ),
+            ListTile(
+              leading: const Icon(Icons.campaign),
+              title: const Text('Promotions'),
               onTap: () {
-                // Optional: Add orders page navigation
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => const PromotionsPage()),
+                );
               },
             ),
             ListTile(
@@ -99,7 +129,6 @@ class _AdminHomePageState extends State<AdminHomePage> {
               style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
             ),
             const SizedBox(height: 20),
-
             GridView.count(
               crossAxisCount: 2,
               shrinkWrap: true,
@@ -109,23 +138,27 @@ class _AdminHomePageState extends State<AdminHomePage> {
               children: [
                 _buildDashboardCard('Sales Today', 'Rs. 0.00', Icons.analytics),
                 _buildDashboardCard('Orders', '0', Icons.shopping_bag),
-                _buildDashboardCard('Products', '0', Icons.inventory),
-                _buildDashboardCard(
-                  'Customers',
-                  '$_userCount',
-                  Icons.group,
-                  onTap: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(builder: (context) => const CustomersPage()),
-                    );
-                  },
-                ),
+                _buildDashboardCard('Products', '$_productCount', Icons.inventory, onTap: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (context) => const ProductListPage()),
+                  );
+                }),
+                _buildDashboardCard('Customers', '$_userCount', Icons.group, onTap: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (context) => const CustomersPage()),
+                  );
+                }),
+                _buildDashboardCard('Promotions', '$_promotionCount', Icons.campaign, onTap: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (context) => const PromotionsPage()),
+                  );
+                }),
               ],
             ),
-
             const SizedBox(height: 30),
-
             ElevatedButton.icon(
               onPressed: () {
                 Navigator.push(
@@ -141,14 +174,29 @@ class _AdminHomePageState extends State<AdminHomePage> {
                 shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
               ),
             ),
+            const SizedBox(height: 16),
+            ElevatedButton.icon(
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => const AddPromotionPage()),
+                );
+              },
+              icon: const Icon(Icons.campaign),
+              label: const Text('Add New Promotion'),
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Colors.green,
+                padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 14),
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+              ),
+            ),
           ],
         ),
       ),
     );
   }
 
-  Widget _buildDashboardCard(String title, String value, IconData icon,
-      {VoidCallback? onTap}) {
+  Widget _buildDashboardCard(String title, String value, IconData icon, {VoidCallback? onTap}) {
     return InkWell(
       onTap: onTap,
       child: Card(
