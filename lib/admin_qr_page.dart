@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:mobile_scanner/mobile_scanner.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'edit_product_page.dart'; // Make sure this file exists
+import 'edit_product_page.dart';
 
 class AdminQRPage extends StatefulWidget {
   const AdminQRPage({super.key});

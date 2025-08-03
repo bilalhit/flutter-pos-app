@@ -53,8 +53,8 @@ class _AddProductPageState extends State<AddProductPage> {
 
       await FirebaseFirestore.instance.collection('products').add({
         'name': productName,
-        'price': priceController.text.trim(),
-        'quantity': quantityController.text.trim(),
+        'price': int.tryParse(priceController.text.trim()) ?? 0,
+        'quantity': int.tryParse(quantityController.text.trim()) ?? 0,
         'category': selectedCategory,
         'productCode': productCode,
         'imageUrl': imageUrl,
